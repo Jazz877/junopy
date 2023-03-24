@@ -15,6 +15,7 @@ new_env_dev: clean
 	else\
 		echo "In a virtual environment! Exit first: 'exit'.";\
 	fi
+	pre-commit install
 
 ########################################
 ### Useful linting command
