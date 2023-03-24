@@ -11,14 +11,9 @@ class NetworkConfig(cosmpy.aerial.client.NetworkConfig):
 
         :return: juno mainnet configuration
         """
-        """
-        'chain_id': 'juno-1', 'url': 'rest+https://rest.cosmos.directory/juno', 'fee_minimum_gas_price': 0.001,
-         'fee_denomination': 'ujuno', 'staking_denomination': ''
-         """
-
         return NetworkConfig(
             chain_id="juno-1",
-            url="rest+https://rest.cosmos.directory/juno",
+            url="grpc+https://juno-grpc.lavenderfive.com",
             fee_minimum_gas_price=0.001,
             fee_denomination="ujuno",
             staking_denomination="",

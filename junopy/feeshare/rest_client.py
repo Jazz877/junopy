@@ -53,7 +53,6 @@ class FeeShareRestClient(FeeShare):
         json_response = self._rest_api.get(
             f"{self.API_URL}/fee_shares/{request.deployer_address}",
             request,
-            ["deployer_address"],
         )
         return Parse(json_response, QueryDeployerFeeSharesResponse())
 
@@ -63,6 +62,5 @@ class FeeShareRestClient(FeeShare):
         json_response = self._rest_api.get(
             f"{self.API_URL}/fee_shares/{request.withdrawer_address}",
             request,
-            ["withdrawer_address"],
         )
         return Parse(json_response, QueryWithdrawerFeeSharesResponse())

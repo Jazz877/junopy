@@ -21,6 +21,7 @@ from junopy.aerial.client.feeshare import (
 )
 from junopy.feeshare.rest_client import FeeShareRestClient
 from junopy.protos.juno.feeshare.v1.query_pb2 import (
+    QueryFeeSharesRequest,
     QueryFeeShareRequest,
     QueryDeployerFeeSharesRequest,
     QueryWithdrawerFeeSharesRequest,
@@ -80,7 +81,7 @@ class LedgerClient(cosmpy.aerial.client.LedgerClient):
         :param address: address to query
         :return: all feeshares
         """
-        fee_shares = self.fee_share.FeeShares()
+        fee_shares = self.fee_share.FeeShares(QueryFeeSharesRequest())
         return [
             FeeShare(
                 contract_address=fee_share.contract_address,
@@ -97,48 +98,32 @@ class LedgerClient(cosmpy.aerial.client.LedgerClient):
         :return: fee share of the address
         """
         req = QueryFeeShareRequest(contract_address=contract_address)
-        fee_share = self.fee_share.FeeShare(req)
+        res = self.fee_share.FeeShare(req)
         return FeeShare(
-            contract_address=fee_share.contract_address,
-            deployer_address=fee_share.deployer_address,
-            withdrawer_address=fee_share.deployer_address,
+            contract_address=res.feeshare.contract_address,
+            deployer_address=res.feeshare.deployer_address,
+            withdrawer_address=res.feeshare.deployer_address,
         )
 
-    def query_fee_shares_by_deployer(self, deployer_address: str) -> Iterable[FeeShare]:
+    def query_fee_shares_by_deployer(self, deployer_address: str) -> Iterable[str]:
         """Query feeshares by deployer.
 
         :param deployer_address: address to query
         :return: feeshares of the deployer
         """
         req = QueryDeployerFeeSharesRequest(deployer_address=deployer_address)
-        fee_shares = self.fee_share.DeployerFeeShares(req)
-        return [
-            FeeShare(
-                contract_address=fee_share.contract_address,
-                deployer_address=fee_share.deployer_address,
-                withdrawer_address=fee_share.deployer_address,
-            )
-            for fee_share in fee_shares.feeshare
-        ]
+        res = self.fee_share.DeployerFeeShares(req)
+        return [contract_address for contract_address in res.contract_addresses]
 
-    def query_fee_shares_by_withdrawer(
-        self, withdrawer_address: str
-    ) -> Iterable[FeeShare]:
+    def query_fee_shares_by_withdrawer(self, withdrawer_address: str) -> Iterable[str]:
         """Query feeshares by withdrawer.
 
         :param withdrawer_address: address to query
         :return: feeshares of the withdrawer
         """
         req = QueryWithdrawerFeeSharesRequest(withdrawer_address=withdrawer_address)
-        fee_shares = self.fee_share.WithdrawerFeeShares(req)
-        return [
-            FeeShare(
-                contract_address=fee_share.contract_address,
-                deployer_address=fee_share.deployer_address,
-                withdrawer_address=fee_share.deployer_address,
-            )
-            for fee_share in fee_shares.feeshare
-        ]
+        res = self.fee_share.WithdrawerFeeShares(req)
+        return [contract_address for contract_address in res.contract_addresses]
 
     def query_fee_shares_params(self) -> Dict:
         """Query fee shares params.
