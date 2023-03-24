@@ -1,0 +1,23 @@
+# Python specific
+*.py[cgo]
+*.egg-info/
+./build/
+dist/
+build/
+Pipfile.lock
+
+# mkdocs documentation
+/site
+
+# IDEs
+.idea/
+
+# Tox files
+.tox
+
+.DS_Store
+*/.DS_Store
+
+# Coverage related files and folders
+.coverage
+coverage_report/
