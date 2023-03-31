@@ -44,6 +44,7 @@ def main():
     if deployer_address:
         resp = ledger_client.query_fee_shares_by_deployer(deployer_address)
         print(f"contract_addresses: {resp}")
+        resp = ledger_client.query_bal
 
     if not contract_address and not withdrawer_address and not deployer_address:
         print(f"feeshares: {ledger_client.query_all_fee_shares()}")
