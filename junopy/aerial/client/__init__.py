@@ -6,19 +6,27 @@ import certifi
 import cosmpy.aerial.client
 import grpc
 from cosmpy.aerial.client import prepare_and_broadcast_basic_transaction
+from cosmpy.aerial.gas import GasStrategy, SimulationGasStrategy
 from cosmpy.aerial.tx import Transaction
 from cosmpy.aerial.tx_helpers import SubmittedTx
-from cosmpy.aerial.urls import parse_url, Protocol
+from cosmpy.aerial.urls import Protocol
 from cosmpy.aerial.wallet import Wallet
+from cosmpy.auth.rest_client import AuthRestClient
+from cosmpy.bank.rest_client import BankRestClient
 from cosmpy.common.rest_client import RestClient
+from cosmpy.cosmwasm.rest_client import CosmWasmRestClient
 from cosmpy.crypto.address import Address
+from cosmpy.distribution.rest_client import DistributionRestClient
+from cosmpy.params.rest_client import ParamsRestClient
+from cosmpy.staking.rest_client import StakingRestClient
+from cosmpy.tx.rest_client import TxRestClient
 
-from junopy.aerial.client.config import NetworkConfig
 from junopy.aerial.client.feeshare import (
     create_register_feeshare_msg,
     create_update_feeshare_msg,
     create_cancel_feeshare_msg,
 )
+from junopy.aerial.client.urls import parse_url
 from junopy.feeshare.rest_client import FeeShareRestClient
 from junopy.protos.juno.feeshare.v1.query_pb2 import (
     QueryFeeSharesRequest,
@@ -27,7 +35,21 @@ from junopy.protos.juno.feeshare.v1.query_pb2 import (
     QueryWithdrawerFeeSharesRequest,
     QueryParamsRequest,
 )
-
+from cosmpy.protos.cosmos.auth.v1beta1.query_pb2_grpc import QueryStub as AuthGrpcClient
+from cosmpy.protos.cosmos.bank.v1beta1.query_pb2_grpc import QueryStub as BankGrpcClient
+from cosmpy.protos.cosmos.distribution.v1beta1.query_pb2_grpc import (
+    QueryStub as DistributionGrpcClient,
+)
+from cosmpy.protos.cosmos.params.v1beta1.query_pb2_grpc import (
+    QueryStub as QueryParamsGrpcClient,
+)
+from cosmpy.protos.cosmos.staking.v1beta1.query_pb2_grpc import (
+    QueryStub as StakingGrpcClient,
+)
+from cosmpy.protos.cosmos.tx.v1beta1.service_pb2_grpc import ServiceStub as TxGrpcClient
+from cosmpy.protos.cosmwasm.wasm.v1.query_pb2_grpc import (
+    QueryStub as CosmWasmGrpcClient,
+)
 from junopy.protos.juno.feeshare.v1.query_pb2_grpc import (
     QueryStub as FeeShareGrpcClient,
 )
@@ -53,9 +75,11 @@ class LedgerClient(cosmpy.aerial.client.LedgerClient):
         query_interval_secs: int = DEFAULT_QUERY_INTERVAL_SECS,
         query_timeout_secs: int = DEFAULT_QUERY_TIMEOUT_SECS,
     ):
-        if cfg is None:
-            cfg = NetworkConfig.juno_mainnet()
-        super().__init__(cfg, query_interval_secs, query_timeout_secs)
+        self._query_interval_secs = query_interval_secs
+        self._query_timeout_secs = query_timeout_secs
+        cfg.validate()
+        self._network_config = cfg
+        self._gas_strategy: GasStrategy = SimulationGasStrategy(self)
 
         parsed_url = parse_url(cfg.url)
 
@@ -70,10 +94,25 @@ class LedgerClient(cosmpy.aerial.client.LedgerClient):
             else:
                 grpc_client = grpc.insecure_channel(parsed_url.host_and_port)
 
+            self.wasm = CosmWasmGrpcClient(grpc_client)
+            self.auth = AuthGrpcClient(grpc_client)
+            self.txs = TxGrpcClient(grpc_client)
+            self.bank = BankGrpcClient(grpc_client)
+            self.staking = StakingGrpcClient(grpc_client)
+            self.distribution = DistributionGrpcClient(grpc_client)
+            self.params = QueryParamsGrpcClient(grpc_client)
             self.fee_share = FeeShareGrpcClient(grpc_client)
         else:
             rest_client = RestClient(parsed_url.rest_url)
-            self.fee_share = FeeShareRestClient(rest_client)
+
+            self.wasm = CosmWasmRestClient(rest_client)  # type: ignore
+            self.auth = AuthRestClient(rest_client)  # type: ignore
+            self.txs = TxRestClient(rest_client)  # type: ignore
+            self.bank = BankRestClient(rest_client)  # type: ignore
+            self.staking = StakingRestClient(rest_client)  # type: ignore
+            self.distribution = DistributionRestClient(rest_client)  # type: ignore
+            self.params = ParamsRestClient(rest_client)  # type: ignore
+            self.fee_share = FeeShareRestClient(rest_client)  # type: ignore
 
     def query_all_fee_shares(self) -> Iterable[FeeShare]:
         """Query all feeshares.

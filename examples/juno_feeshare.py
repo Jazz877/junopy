@@ -22,7 +22,7 @@ def _parse_commandline():
 
 def main():
     """Run main."""
-    network_config = NetworkConfig.juno_mainnet_grpc()
+    network_config = NetworkConfig.cosmos_directory_juno_mainnet()
 
     ledger_client = LedgerClient(network_config)
 
