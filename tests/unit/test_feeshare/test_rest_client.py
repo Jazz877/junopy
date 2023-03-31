@@ -3,8 +3,8 @@ from unittest import TestCase
 from google.protobuf.json_format import ParseDict
 
 from cosmpy.common.utils import json_encode
-from junopy.feeshare.rest_client import FeeShareRestClient
-from junopy.protos.juno.feeshare.v1.query_pb2 import (
+from pyuno.feeshare.rest_client import FeeShareRestClient
+from pyuno.protos.juno.feeshare.v1.query_pb2 import (
     QueryDeployerFeeSharesRequest,
     QueryDeployerFeeSharesResponse,
     QueryFeeShareRequest,

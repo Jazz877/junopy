@@ -1,5 +1,5 @@
 <h1>
-    JunoPy
+    Py(J)Uno
 </h1>
 
 <p>
@@ -25,7 +25,7 @@ This project uses and builds upon the cosmpy project, which is licensed under th
 
    ```bash
     git clone https://github.com/Jazz877/junopy.git
-    cd junopy
+    cd pyuno
    ```
 
 3. Setup the development environment:

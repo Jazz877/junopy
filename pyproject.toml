@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "junopy"
+name = "pyuno"
 version = "0.1.0"
 description = ""
 authors = ["Kleomedes Dev Team"]
@@ -63,6 +63,7 @@ exclude = [
     "dist",
     "node_modules",
     "venv",
+    "pyuno/protos"
 ]
 
 # Same as Black.

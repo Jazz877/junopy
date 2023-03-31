@@ -1,8 +1,8 @@
 """Example of juno feeshare."""
 import argparse
 
-from junopy.aerial.client.config import NetworkConfig
-from junopy.aerial.client import LedgerClient
+from pyuno.aerial.client.config import NetworkConfig
+from pyuno.aerial.client import LedgerClient
 
 
 def _parse_commandline():

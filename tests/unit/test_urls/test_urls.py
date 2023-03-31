@@ -2,7 +2,7 @@ from unittest import TestCase
 
 from cosmpy.aerial.urls import Protocol
 
-from junopy.aerial.client.urls import parse_url
+from pyuno.aerial.client.urls import parse_url
 
 
 class TestUrls(TestCase):
